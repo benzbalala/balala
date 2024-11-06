@@ -103,8 +103,8 @@ export default {
             localStorage.removeItem('user');
             this.isLoggedIn = false;
             this.userRole = '';  
-            window.location.href = `${process.env.VUE_APP_NGROK}`;
-            this.$router.push({ name: 'Homepage' });
+            // window.location.href = `${process.env.VUE_APP_NGROK}`;
+            window.location.href = process.env.VUE_APP_NGROK || 'http://localhost:8080';
         }
     }
 }

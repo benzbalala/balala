@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Shop, Follow } = require('../configs/database');
+const { Shop, Follow,Payment } = require('../configs/database');
 const crypto = require('crypto');
 
 // POST /register-shop
@@ -100,10 +100,6 @@ router.patch('/product/:id/togglefollow', async (req, res) => {
     }
 });
 
-
-
-
-
 router.get('/follow', async (req, res) => {
     try {
         const shops = await Shop.findAll();
@@ -136,8 +132,33 @@ router.get('/shopsFollow', async (req, res) => {
 router.get('/shops', async (req, res) => {
     try {
         const shops = await Shop.findAll();
-
-        // ส่งข้อมูลกลับไปที่ client
+        res.status(200).json({ message: 'Shops retrieved successfully', data: shops });
+    } catch (error) {
+        console.error('Error retrieving shops:', error);
+        res.status(500).json({ message: 'Failed to retrieve shops' });
+    }
+});
+router.get('/Payment', async (req, res) => {
+    try {
+        const shops = await Payment.findAll();
+        res.status(200).json({ message: 'Shops retrieved successfully', data: shops });
+    } catch (error) {
+        console.error('Error retrieving shops:', error);
+        res.status(500).json({ message: 'Failed to retrieve shops' });
+    }
+});
+router.get('/Payment', async (req, res) => {
+    try {
+        const shops = await Payment.findAll();
+        res.status(200).json({ message: 'Shops retrieved successfully', data: shops });
+    } catch (error) {
+        console.error('Error retrieving shops:', error);
+        res.status(500).json({ message: 'Failed to retrieve shops' });
+    }
+});
+router.get('/seller', async (req, res) => {
+    try {
+        const shops = await Payment.findAll();
         res.status(200).json({ message: 'Shops retrieved successfully', data: shops });
     } catch (error) {
         console.error('Error retrieving shops:', error);
@@ -157,6 +178,28 @@ router.delete('/shops', async (req, res) => {
     } catch (error) {
         console.error('Error deleting shops:', error);
         res.status(500).json({ message: 'Failed to delete shops' });
+    }
+});
+router.delete('/Payment', async (req, res) => {
+    try {
+        // ลบข้อมูลทั้งหมดจากฐานข้อมูล
+        await Payment.destroy({
+            where: {},
+        });
+        res.status(200).json({ message: 'All shops deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting shops:', error);
+        res.status(500).json({ message: 'Failed to delete shops' });
+    }
+});
+router.get('/Paymentbyemail', async (req, res) => {
+    try {
+        const { email } = req.query;
+        const shops = await Payment.findOne({ where: { email } });
+        res.status(200).json({ message: 'ดึงข้อมูลร้านค้าเรียบร้อยแล้ว', data: shops });
+    } catch (error) {
+        console.error('ข้อผิดพลาดในการดึงข้อมูลร้านค้า:', error);
+        res.status(500).json({ message: 'ไม่สามารถดึงข้อมูลร้านค้าได้' });
     }
 });
 router.put('/account', async (req, res) => {

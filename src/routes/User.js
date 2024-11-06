@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { User, location } = require('../configs/database');
+const { User, location, recipes } = require('../configs/database');
 const nodemailer = require('nodemailer');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const { sendOtp } = require('./forgotPassword');
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     }
 });
 router.post('/address', async (req, res) => {
-    const { name, district, postalCode, province, address, email } = req.body;
+    const { name, district, postalCode, province, address, email, number } = req.body;
     try {
         const newUser = await location.create({
             name,
@@ -25,7 +25,8 @@ router.post('/address', async (req, res) => {
             postalCode,
             province,
             address,
-            email
+            email,
+            number
         });
         res.status(201).json(newUser);
     } catch (error) {
@@ -33,15 +34,115 @@ router.post('/address', async (req, res) => {
         res.status(500).send('Error during registration');
     }
 });
-router.get('/address', async (req, res) => {
-    const { email } = req.query; // รับ email จาก query string
+router.post('/recipes', async (req, res) => {
+    const { Orderid, email } = req.body;
+    try {
+        const newUser = await recipes.create({
+            Orderid,
+            email,
+        });
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.error('Error during registration:', error);
+        res.status(500).send('Error during registration');
+    }
+});
+// router.get('/recipes', async (req, res) => {
+
+//     try {
+//         const userAddress = await recipes.findAll({  });
+//         if (!userAddress) {
+//             return res.status(404).json({ message: 'Address not found' });
+//         }
+//         res.status(200).json(userAddress);
+//     } catch (error) {
+//         console.error('Error retrieving address:', error);
+//         res.status(500).json({ message: 'Failed to retrieve address' });
+//     }
+// });
+router.delete('/recipes', async (req, res) => {
+    try {
+        await recipes.destroy({});
+        res.status(200).json("deleted");
+    } catch (error) {
+        console.error('Error retrieving address:', error);
+        res.status(500).json({ message: 'Failed to retrieve address' });
+    }
+});
+router.get('/recipes', async (req, res) => {
+    const { email } = req.query;
+    if (!email) {
+        return res.status(400).send('ไม่มี email');
+    }
+    try {
+        const recipe = await recipes.findOne({
+            where: { email },
+            order: [['createdAt', 'DESC']]
+        });
+
+        if (!recipe) {
+            return res.status(404).send('ไม่พบข้อมูล');
+        }
+
+        res.status(200).json(recipe); // ส่งข้อมูลล่าสุดกลับไป
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลจากตะกร้า:', error);
+        res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลจากตะกร้า');
+    }
+});
+router.put('/address', async (req, res) => {
+    const { name, district, postalCode, province, address, email, number } = req.body;
 
     try {
-        const userAddress = await location.findOne({ email });
+        const userAddress = await location.findOne({ where: { email } });
+
         if (!userAddress) {
+            console.log("Address not found for email:", email);
+            return res.status(404).send('Address not found');
+        }
+
+        userAddress.name = name;
+        userAddress.district = district;
+        userAddress.postalCode = postalCode;
+        userAddress.province = province;
+        userAddress.address = address;
+        userAddress.number = number;
+        await userAddress.save();
+        console.log("Address successfully updated:", userAddress); // Debug log
+
+        res.status(200).json(userAddress);
+    } catch (error) {
+        console.error("Error updating address:", error);
+        res.status(500).send("Error updating address");
+    }
+});
+
+// router.get('/address', async (req, res) => {
+
+//     try {
+//         const userAddress = await location.findAll({  });
+//         if (!userAddress) {
+//             return res.status(404).json({ message: 'Address not found' });
+//         }
+//         res.status(200).json(userAddress);
+//     } catch (error) {
+//         console.error('Error retrieving address:', error);
+//         res.status(500).json({ message: 'Failed to retrieve address' });
+//     }
+// });
+router.get('/address', async (req, res) => {
+    const { email } = req.query;
+
+    try {
+        const latestAddress = await location.findOne({
+            where: { email },
+            order: [['updatedAt', 'DESC']]
+        });
+
+        if (!latestAddress) {
             return res.status(404).json({ message: 'Address not found' });
         }
-        res.status(200).json(userAddress);
+        res.status(200).json(latestAddress);
     } catch (error) {
         console.error('Error retrieving address:', error);
         res.status(500).json({ message: 'Failed to retrieve address' });
@@ -69,7 +170,7 @@ router.post('/register', async (req, res) => {
             password: hashedPassword,
             ConfirmPassword,
             role,
-            isConfirmed: false 
+            isConfirmed: false
         });
 
         const confirmationToken = jwt.sign({ id: newUser.id }, JWT_SECRET, { expiresIn: '1h' });
@@ -78,7 +179,7 @@ router.post('/register', async (req, res) => {
             service: 'gmail',
             auth: {
                 user: 'savevever1@gmail.com',
-                pass: 'bhdp jvok kvzv uqoz' 
+                pass: 'bhdp jvok kvzv uqoz'
             }
         });
 
@@ -115,10 +216,10 @@ router.get('/confirm-email', async (req, res) => {
             return res.status(404).json({ message: 'ไม่พบผู้ใช้' });
         }
 
-        user.isConfirmed = true; 
+        user.isConfirmed = true;
         await user.save();
 
-        res.redirect('http://localhost:8080/users/login'); 
+        res.redirect('http://localhost:8080/users/login');
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการยืนยันอีเมล:', error);
         res.status(500).send('เกิดข้อผิดพลาดในการยืนยันอีเมล');
@@ -213,13 +314,18 @@ router.post('/updateRoleToSeller', async (req, res) => {
     }
 });
 
-router.post('/login', async (req, res) => { 
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ where: { email } });
+        if (!user.isConfirmed) {
+            return res.status(403).json({ message: 'กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ' });
+        }
+
         if (!user || !await bcrypt.compare(password, user.password)) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
+
         const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
         return res.status(200).json({ message: 'Login successful', user, token });
     } catch (error) {

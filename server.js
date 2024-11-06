@@ -20,7 +20,8 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: "secret",
     resave: false,
@@ -72,10 +73,10 @@ app.use('/shop', shopRoutes);
 app.use('/selling', sellingRoutes);
 app.use('/2c2p', payment);
 app.get('/', (req, res) => res.send('Welcome to the API'));
-app.get('/users/PurchaseHistory', (req, res) => {
+app.get('/receiptComponent', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-app.post('/users/PurchaseHistory', (req, res) => {
+app.post('/receiptComponent', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 

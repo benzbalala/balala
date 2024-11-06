@@ -7,8 +7,17 @@
         <div id="item-container">
           <div v-for="(product, index) in cartItems" :key="index" class="item">
             <div class="items">
-              <input type="checkbox" v-model="product.checkbox" class="checked" @change="setSelectItem(product)" />
-              <img :src="product.image" alt="" style="width: 100px; height: 100px" />
+              <input
+                type="checkbox"
+                v-model="product.checkbox"
+                class="checked"
+                @change="setSelectItem(product)"
+              />
+              <img
+                :src="product.image"
+                alt=""
+                style="width: 100px; height: 100px"
+              />
 
               <div class="item-1">
                 <p>
@@ -19,10 +28,27 @@
                 </p>
               </div>
               <div class="item-2">
-                <div class="quantitycount">
-                  <input type="number" v-model="product.quantity" min="1" @change="
-                    onQuantityChange(product.id, product.quantity)
-                    " :disabled="!product.checkbox" />
+                <!-- <div class="quantitycount">
+                  <button class="minus" @click="decrement(product)">-</button>
+                  <input type="number" v-model="product.quantity" min="1" 
+                    :max="product.numberProducts" 
+                    @change="onQuantityChange(product.id, product.quantity)" 
+                    class="no-spinner" 
+                    @input="checkTyping(product)"/>
+                  <button class="plus" @click="increment(product)">+</button>
+                </div> -->
+                <div class="quantitycount" :key="product.id">
+                  <button class="minus" @click="decrement(product)">-</button>
+                  <input
+                    type="number"
+                    v-model="product.quantity"
+                    :max="product.numberProducts"
+                    @change="onQuantityChange(product.id, product.quantity)"
+                    @input="updateCount(product)"
+                    min="0"
+                    class="no-spinner"
+                  />
+                  <button class="plus" @click="increment(product)">+</button>
                 </div>
                 <div class="product-line-price">
                   {{ calculateLinePrice(product).toFixed(2) }} บาท
@@ -108,23 +134,44 @@ export default {
           throw new Error("User email not found");
         }
 
-        const response = await axios.get("http://localhost:8081/products/getCart");
+        // ดึงข้อมูลจาก API สำหรับสินค้าทั้งหมด
+        const productsResponse = await axios.get(
+          "http://localhost:8081/selling/productss"
+        );
+        const allProducts = productsResponse.data; // เก็บข้อมูลสินค้าทั้งหมด
+
+        const response = await axios.get(
+          "http://localhost:8081/products/getCart"
+        );
         const allCartItems = response.data;
         console.log("allCartItems", allCartItems);
 
-        this.cartItems = allCartItems.filter((entry) => entry.email === userEmail);
+        // กรองรายการสินค้าในตะกร้าตามอีเมลของผู้ใช้
+        this.cartItems = allCartItems.filter(
+          (entry) => entry.email === userEmail
+        );
 
         const tempCart = [];
 
         this.cartItems.forEach((item) => {
           const existingItem = tempCart.find(
-            (tempItem) => tempItem.productId === item.productId && tempItem.productTypes === item.productTypes
+            (tempItem) =>
+              tempItem.productId === item.productId &&
+              tempItem.productTypes === item.productTypes
           );
 
           if (existingItem) {
             existingItem.quantity += item.quantity;
           } else {
-            tempCart.push({ ...item });
+            // หา numberProducts จาก allProducts
+            const productDetails = allProducts.find(
+              (product) => product.id === item.productId
+            );
+            const numberProducts = productDetails
+              ? productDetails.numberProducts
+              : 0; // กำหนดค่าเป็น 0 ถ้าไม่พบ
+
+            tempCart.push({ ...item, numberProducts }); // เพิ่ม numberProducts ลงใน tempCart
           }
         });
 
@@ -168,13 +215,15 @@ export default {
 
           console.log("Product Data for History:", productData);
 
+          axios;
           axios
             .post(
-              "http://localhost:8081/products/createHistoryEntry",
+              "http://localhost:8081/products/ProductTestOrder",
               productData
             )
             .then((response) => {
               console.log("Product added to history:", response.data);
+              window.location.href = "http://localhost:8080/AddressSeller";
             })
             .catch((error) => {
               console.error(
@@ -185,9 +234,31 @@ export default {
         });
       }
     },
-    handleClick() {
-      this.addToHistoryClicked();
-      this.payment();
+    async handleClick() {
+      await this.addToHistoryClicked();
+      // await this.payment();
+      await this.clearProduct();
+    },
+    async clearProduct() {
+      // กรองรายการที่เลือกจาก checkbox
+      const itemsToRemove = this.selectedItems.filter(
+        (product) => product.checkbox
+      );
+
+      try {
+        for (const product of itemsToRemove) {
+          await axios.delete(
+            `http://localhost:8081/products/delCart/${product.id}`
+          );
+          console.log(`Deleted product with ID: ${product.id}`);
+        }
+        // โหลดตะกร้าใหม่หลังจากลบสินค้าแล้ว
+        await this.loadCart();
+        // เคลียร์ selectedItems หลังจากลบ
+        this.selectedItems = [];
+      } catch (error) {
+        console.error("Error canceling orders:", error);
+      }
     },
     payment() {
       const selectedIds = this.selectedItems.map((product) => product.id);
@@ -235,28 +306,90 @@ export default {
           alert("เกิดข้อผิดพลาดในการประมวลผล payment token");
         });
     },
+    increment(product) {
+      if (!product.checkbox) {
+        product.checkbox = true;
+        this.setSelectItem(product);
+      }
+
+      if (product.quantity < product.numberProducts) {
+        product.quantity++;
+        this.onQuantityChange(product.id, product.quantity);
+      }
+      console.log("Product ID:", product.id, "New quantity:", product.quantity);
+    },
+
+    decrement(product) {
+      if (!product.checkbox) {
+        product.checkbox = true;
+        this.setSelectItem(product);
+      }
+
+      if (product.quantity > 1) {
+        product.quantity--;
+        this.onQuantityChange(product.id, product.quantity);
+      } else if (product.quantity === 1) {
+        const confirmClear = window.confirm(
+          "คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้ออกจากตะกร้า?"
+        );
+        if (confirmClear) {
+          product.quantity = 0;
+          this.clearCart();
+        } else {
+          product.quantity = 1;
+        }
+      }
+      console.log("Product ID:", product.id, "New quantity:", product.quantity);
+    },
+    updateCount(product) {
+      product.checkbox = true;
+
+      if (product.quantity < 1) {
+        const confirmClear = window.confirm(
+          "คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้ออกจากตะกร้า?"
+        );
+        if (confirmClear) {
+          product.quantity = 0;
+          this.clearCart();
+        } else {
+          product.quantity = 1;
+        }
+      } else if (!Number.isInteger(product.quantity)) {
+        product.quantity = Math.floor(product.quantity);
+      }
+
+      if (product.quantity > product.numberProducts) {
+        product.quantity = product.numberProducts;
+      }
+
+      if (product.quantity > 0) {
+        this.onQuantityChange(product.id, product.quantity);
+      }
+    },
     onQuantityChange(id, newQuantity) {
-      console.log("id",id);
-      
-    const product = this.cartItems.find((item) => item.id === id); 
-    if (product) {
+      if (!this.products) {
+        console.error("Products array is undefined");
+        return;
+      }
+
+      const product = this.products.find((item) => item.id === id);
+      if (product) {
         product.quantity = newQuantity;
 
         axios
-            .put(`http://localhost:8081/products/updateCartQuantity/${id}`, { 
-                quantityCheng: newQuantity,
-            })
-            .then((response) => {
-                console.log("Quantity updated:", response.data);
-            })
-            .catch((error) => {
-                console.error("Error updating quantity:", error);
-            });
-    } else {
+          .put(`http://localhost:8081/products/updateCartQuantity/${id}`, {
+            quantityCheng: newQuantity,
+          })
+          .then((response) => {
+            console.log("Quantity updated:", response.data);
+          })
+          .catch((error) => {
+            console.error("Error updating quantity:", error);
+          });
+      } else {
         console.error("Product not found");
-    }
-}
-,
+      }
+    },
     // async removeFromCart(productId) {
     //   try {
     //     await axios.delete(
@@ -269,50 +402,36 @@ export default {
     //   }
     // },
     async clearCart() {
-    // กรองรายการที่เลือกจาก checkbox
-    const itemsToRemove = this.selectedItems.filter(
+      // กรองรายการที่เลือกจาก checkbox
+      const itemsToRemove = this.selectedItems.filter(
         (product) => product.checkbox
-    );
+      );
 
-    try {
+      try {
         for (const product of itemsToRemove) {
-            await axios.delete(
-                `http://localhost:8081/products/delCart/${product.id}`
-            );
-            console.log(`Deleted product with ID: ${product.id}`);
+          await axios.delete(
+            `http://localhost:8081/products/delCart/${product.id}`
+          );
+          console.log(`Deleted product with ID: ${product.id}`);
         }
         await this.loadCart();
-    } catch (error) {
+      } catch (error) {
         console.error("Error canceling orders:", error);
-    }
-},
-selectAllbutton(allItems) {
-  const allSelected = allItems.every(product => product.checkbox);
-  
-  allItems.forEach(product => {
-    product.checkbox = !allSelected;
-    
-    if (product.checkbox) {
-      if (!this.selectedItems.includes(product)) {
-        this.selectedItems.push(product);
       }
-    } else {
-      const index = this.selectedItems.findIndex(item => item.id === product.id);
-      if (index !== -1) {
-        this.selectedItems.splice(index, 1);
-      }
-    }
-  });
-
-  console.log("Selected items after toggle:", this.selectedItems);
-}
-,
+    },
+    selectAllbutton(allItems) {
+      const allSelected = allItems.every((product) => product.checkbox);
+      allItems.forEach((product) => {
+        product.checkbox = !allSelected;
+      });
+      this.selectedItems = allSelected ? [] : [...allItems];
+    },
     async checkout() {
       const totalAmount = this.cartTotal;
       const success = await this.processPayment({
         userId: 1,
         amount: totalAmount,
-      }); 
+      });
       if (success) {
         alert("ชำระเงินสำเร็จ");
         console.log("ยอดเงินคงเหลือ: " + this.currentBalance);
@@ -456,14 +575,8 @@ h1 {
   gap: 2rem;
 }
 
-.quantitycount input {
-  font-size: 18px;
-  width: 50px;
-  text-align: center;
-}
-
 .product-line-price {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: bold;
 }
 
@@ -518,4 +631,52 @@ h1 {
   /* ระยะห่างด้านบน */
 }
 
+.no-spinner {
+  /* ซ่อนปุ่ม spinner */
+  -moz-appearance: textfield;
+}
+
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  /* ซ่อนปุ่ม spinner สำหรับ Chrome และ Safari */
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.minus,
+.plus {
+  width: 30px;
+  height: 32px;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+  background-color: #ffffff;
+  border: 2px solid #e8e8e8;
+  cursor: pointer;
+}
+
+.minus:hover,
+.plus:hover {
+  background-color: #e8e8e8;
+  border: 2px solid #e8e8e8;
+}
+
+.quantitycount {
+  display: flex;
+  align-items: center;
+}
+
+.quantitycount input {
+  font-size: 22px;
+  width: 50px;
+  height: 29px;
+  text-align: center;
+  border: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.quantitycount button {
+  width: 30px;
+  font-size: 20px;
+  cursor: pointer;
+}
 </style>

@@ -31,14 +31,15 @@
                         <div class="upload-container" @dragover.prevent @drop.prevent="handleDrop">
                             <span>รูปภาพโปรไฟล์</span>
                             <div class="upload-icon-container" v-if="!imageUploaded">
-                                <font-awesome-icon :icon="['fas', 'image']" @click="triggerFileInput('product')" 
+                                <font-awesome-icon :icon="['fas', 'image']" @click="triggerFileInput('product')"
                                     class="upload-icon" />
-                                <input type="file" ref="productImageInput" class="image-upload" accept="image/*" 
+                                <input type="file" ref="productImageInput" class="image-upload" accept="image/*"
                                     @change="previewImage($event, 'images')" multiple style="display: none" />
                             </div>
                             <div class="images-container" id="container-product-images">
                                 <div v-if="imageUploaded" class="image-wrapper">
-                                    <img v-if="images.length > 0" :src="images[0].src" alt="Product Image" class="uploaded-image" />
+                                    <img v-if="images.length > 0" :src="images[0].src" alt="Product Image"
+                                        class="uploaded-image" />
                                     <!-- <font-awesome-icon v-if="images.length > 0" :icon="['fas', 'circle-xmark']" class="delete-icon" @click="removeImage" /> -->
                                 </div>
                             </div>
@@ -159,26 +160,34 @@ export default {
         async saveAccountSettings() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
-                const image = this.images.length > 0 ? this.images[0].src : "";
+
                 const payload = {
                     email: this.email,
-                    gender: this.gender,
-                    date: this.date,
-                    name: this.UserName,
-                    image,
+                    gender: this.gender || user.gender,
+                    date: this.date || user.date,
+                    name: this.UserName || user.name,
+                    image: this.images.length > 0 ? this.images[0].src : user.image,
                 };
+
                 console.log("Payload:", payload);
+
                 const response = await axios.put(
                     "http://localhost:8081/users/account",
                     payload
                 );
+
                 user.name = payload.name;
                 user.image = payload.image;
                 localStorage.setItem("user", JSON.stringify(user));
+
                 console.log("Updated user:", response.data);
+
+                alert("บันทึกการตั้งค่าบัญชีเรียบร้อยแล้ว!");
+
                 window.location.reload();
             } catch (error) {
                 console.error("Error updating account:", error);
+                alert("Error updating account. Please try again.");
             }
         },
     },
@@ -262,20 +271,22 @@ export default {
 } */
 
 #Purchase-history-container {
-    width: 1100px; /* กำหนดขนาดเท่ากัน */
+    width: 1100px;
+    /* กำหนดขนาดเท่ากัน */
     height: 630px;
     /* background-color: #1f1b3a; */
     display: flex;
     align-items: stretch;
     background-color: #1f1b3a;
-    margin-top: 2rem; /* ระยะห่างด้านบนเท่ากัน */
+    margin-top: 2rem;
+    /* ระยะห่างด้านบนเท่ากัน */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #Purchase-history-right {
     padding: 20px;
     height: 590px;
-    width:  1100px;
+    width: 1100px;
     background-color: #ffffff;
 }
 
@@ -446,28 +457,32 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 90%;
-    border: 2px dashed #888; /* Add a dashed border to indicate drop area */
-    transition: border 0.3s ease; /* Smooth transition for border */
+    border: 2px dashed #888;
+    /* Add a dashed border to indicate drop area */
+    transition: border 0.3s ease;
+    /* Smooth transition for border */
 }
 
 .upload-container:hover {
-    border-color: #555; /* Change border color on hover */
+    border-color: #555;
+    /* Change border color on hover */
 }
 
 .upload-icon-container {
     cursor: pointer;
 }
+
 #container {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     overflow: hidden;
-    margin-top: 2rem; /* ระยะห่างด้านบน */
+    margin-top: 2rem;
+    /* ระยะห่างด้านบน */
 }
 
 .title {
     font-weight: 700;
 }
-
 </style>

@@ -6,7 +6,7 @@
             </div>
             <nav>
                 <ul id="MenuItems">
-                    <li @click="redirectIfNotLoggedIn('/')"><router-link to="/">Home</router-link></li>
+                    <li><router-link to="/">Home</router-link></li>
                     <li :class="{ disabled: userRole() === 'seller' }"
                         @click="redirectIfNotLoggedIn('/selling/FormOneSeller')">
                         <router-link v-if="userRole() !== 'seller'" to="/selling/FormOneSeller">Start
@@ -90,7 +90,7 @@ export default {
             axios.get('http://localhost:8081/products/getCart')
                 .then(response => {
                     this.cartItemCount = response.data.length;
-                    // console.log("this.cartItemCount",response.data);
+                    console.log("this.cartItemCount",response.data.length);
                     
                 })
                 .catch(error => {

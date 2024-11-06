@@ -15,7 +15,9 @@
                 <input type="radio" id="corporate-option" class="seller-type" name="seller-type" value="corporate"
                     v-model="sellerType" @click="showSellerType('corporate')" />
                 <label for="corporate-option" class="section">นิติบุคคล</label>
-                <p id="error-sellertype" v-if="sellerTypeError" style="color: red">กรุณาเลือกประเภทผู้ขาย</p>
+                <p id="error-sellertype" v-if="sellerTypeError" style="color: red">
+                    กรุณาเลือกประเภทผู้ขาย
+                </p>
             </div>
             <!-- บุคคลธรรมดา -->
             <div id="individual-container" v-show="sellerType === 'individual'">
@@ -36,19 +38,23 @@
                     <div id="other-prefix-container" v-show="prefix === 'Other'">
                         <input type="text" name="other-prefix" id="other-prefix" ref="otherPrefix" class="input-form"
                             placeholder="Other..." v-model="otherPrefix" @input="handleInput()" />
-                        <p id="error-prefix-other" v-if="prefixErrorOther" style="color: red">กรุณากรอกคำนำหน้า</p>
+                        <p id="error-prefix-other" v-if="prefixErrorOther" style="color: red">
+                            กรุณากรอกคำนำหน้า
+                        </p>
                     </div>
-                    <p id="error-prefix" v-if="prefixError" style="color: red">กรุณาเลือกคำนำหน้า</p>
+                    <p id="error-prefix" v-if="prefixError" style="color: red">
+                        กรุณาเลือกคำนำหน้า
+                    </p>
                 </div>
                 <div class="formbox">
                     <label class="section">ชื่อ :</label>
-                    <input type="text" name="firstname" ref="firstname" id="firstname" class="input-form"
-                        placeholder="First Name" v-model="firstname" @input="handleInput()" />
+                    <input type="text" name="firstName" ref="firstName" id="firstName" class="input-form"
+                        placeholder="First Name" v-model="firstName" @input="handleInput()" />
                 </div>
                 <div class="formbox">
                     <label class="section">นามสกุล :</label>
-                    <input type="text" name="lastname" ref="lastname" id="lastname" class="input-form"
-                        placeholder="Last Name" v-model="lastname" @input="handleInput()" />
+                    <input type="text" name="lastName" ref="lastName" id="lastName" class="input-form"
+                        placeholder="Last Name" v-model="lastName" @input="handleInput()" />
                 </div>
                 <div class="formbox">
                     <label class="section">หมายเลขบัตรประชาชน :</label>
@@ -61,17 +67,14 @@
                 </div>
                 <div class="formbox">
                     <label class="section">วันเดือนปีเกิด :</label>
-                    <input type="date" name="birthday" ref="birthday" id="birthday" class="input-form"
-                        placeholder="Birthday" v-model="birthday" @input="handleInput()" />
-                    <p id="error-message" v-if="ageError" style="color: red">คุณต้องมีอายุเกิน 20 ปีขึ้นไป</p>
+                    <input type="date" name="birthDay" ref="birthDay" id="birthDay" class="input-form"
+                        placeholder="birthDay" v-model="birthDay" @input="handleInput()" />
+                    <p id="error-message" v-if="ageError" style="color: red">
+                        คุณต้องมีอายุเกิน 20 ปีขึ้นไป
+                    </p>
                 </div>
                 <div class="formbox">
                     <label class="section">ที่อยู่ :</label>
-                    <div class="formbox">
-                        <textarea name="address-details" ref="addressDetails" id="address-details" class="input-form"
-                            placeholder="รายละเอียดที่อยู่ ระบุตามที่อยู่ตามบัตรประชาชน" v-model="addressDetails"
-                            @input="handleInput()"></textarea>
-                    </div>
                     <div class="formbox">
                         <label class="section">จังหวัด :</label>
                         <input type="text" id="province" ref="province" name="province" class="input-form"
@@ -92,43 +95,57 @@
                         <input type="text" id="zipcode" ref="zipcode" name="zipcode" class="input-form"
                             placeholder="รหัสไปรษณีย์" v-model="zipcode" @input="handleInput()" />
                     </div>
-                    
-                </div>
-                <div class="formbox">
-                    <label class="section">รูปถ่ายด้านหน้าบัตรประชาชน :</label>
-                    <div class="upload-container">
-                        <div class="images-container" id="container-photo-IDcard">
-                            <div v-for="(image, index) in idCardImages" :key="index" class="image-wrapper">
-                                <img :src="image" alt="ID Card" class="uploaded-image" />
-                                <span class="delete-icon" @click="removeImage(index, 'idCardImages')">x</span>
-                            </div>
-                        </div>
-                        <font-awesome-icon v-if="idCardImages.length === 0" :icon="['fas', 'image']"
-                            @click="triggerFileInput('photo-IDcard')" class="upload-icon" />
-                        <input type="file" name="image" ref="photoIDcardInput" class="image-upload" accept="image/*"
-                            @change="previewImage($event, 'idCardImages')" />
-                        <p id="photo-IDcard-error" v-if="photoIdCardError" style="color: red">
-                            กรุณาอัพโหลดรูปภาพ
-                        </p>
+                    <div class="formbox">
+                        <textarea name="address-details" ref="addressDetails" id="address-details" class="input-form"
+                            placeholder="รายละเอียดที่อยู่ ระบุตามที่อยู่ตามบัตรประชาชน" v-model="addressDetails"
+                            @input="handleInput()"></textarea>
                     </div>
                 </div>
-                <div class="formbox">
-                    <label class="section">รูปถ่ายคู่กับบัตรประชาชน :</label>
-                    <div class="upload-container">
-                        <div class="images-container" id="container-photo-pair-IDCard">
-                            <div v-for="(image, index) in pairIdCardImages" :key="index" class="image-wrapper">
-                                <img :src="image" alt="Pair with ID Card" class="uploaded-image" />
-                                <span class="delete-icon" @click="removeImage(index, 'pairIdCardImages')">x</span>
+                <div class="formbox-container">
+                    <div class="formbox-img">
+                        <label class="section-img">รูปถ่ายด้านหน้าบัตรประชาชน :</label>
+                        <div class="upload-container" @drop="handleDrop($event, 'idCardImages', 'isDraggingIdCard')"
+                            @dragover="handleDragOver($event, 'isDraggingIdCard')"
+                            @dragleave="handleDragLeave('isDraggingIdCard')" :class="{ dragging: isDraggingIdCard }">
+                            <div class="images-container" id="container-photo-IDcard">
+                                <div v-for="(image, index) in idCardImages" :key="index" class="image-wrapper">
+                                    <img :src="image" alt="ID Card" class="uploaded-image" />
+                                    <font-awesome-icon :icon="['fas', 'circle-xmark']" class="delete-icon"
+                                        @click="removeImage(index, 'idCardImages')" />
+                                </div>
                             </div>
+                            <font-awesome-icon v-if="idCardImages.length === 0" :icon="['fas', 'image']"
+                                @click="triggerFileInput('photo-IDcard')" class="upload-icon" />
+                            <input type="file" name="image" ref="photoIDcardInput" class="image-upload" accept="image/*"
+                                @change="previewImage($event, 'idCardImages')" />
+                            <p id="photo-IDcard-error" v-if="photoIdCardError" style="color: red">
+                                กรุณาอัพโหลดรูปภาพ
+                            </p>
                         </div>
-                        <font-awesome-icon v-if="pairIdCardImages.length === 0" :icon="['fas', 'image']"
-                            @click="triggerFileInput('photo-pair-IDCard')" class="upload-icon" />
-                        <input type="file" name="image" ref="photoPairIDcardInput" class="image-upload" accept="image/*"
-                            @change="previewImage($event, 'pairIdCardImages')" />
                     </div>
-                    <p id="photo-pair-IDcard-error" v-if="photoPairIdCardError" style="color: red">
-                        กรุณาอัพโหลดรูปภาพ
-                    </p>
+                    <div class="formbox-img">
+                        <label class="section-img">รูปถ่ายคู่กับบัตรประชาชน :</label>
+                        <div class="upload-container" @drop="
+                            handleDrop($event, 'pairIdCardImages', 'isDraggingPairIdCard')
+                            " @dragover="handleDragOver($event, 'isDraggingPairIdCard')"
+                            @dragleave="handleDragLeave('isDraggingPairIdCard')"
+                            :class="{ dragging: isDraggingPairIdCard }">
+                            <div class="images-container" id="container-photo-pair-IDCard">
+                                <div v-for="(image, index) in pairIdCardImages" :key="index" class="image-wrapper">
+                                    <img :src="image" alt="Pair with ID Card" class="uploaded-image" />
+                                    <font-awesome-icon :icon="['fas', 'circle-xmark']" class="delete-icon"
+                                        @click="removeImage(index, 'pairIdCardImages')" />
+                                </div>
+                            </div>
+                            <font-awesome-icon v-if="pairIdCardImages.length === 0" :icon="['fas', 'image']"
+                                @click="triggerFileInput('photo-pair-IDCard')" class="upload-icon" />
+                            <input type="file" name="image" ref="photoPairIDcardInput" class="image-upload"
+                                accept="image/*" @change="previewImage($event, 'pairIdCardImages')" />
+                            <p id="photo-pair-IDcard-error" v-if="photoPairIdCardError" style="color: red">
+                                กรุณาอัพโหลดรูปภาพ
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- นิติบุคคล -->
@@ -153,7 +170,9 @@
                     <input type="radio" id="corporate-option6" class="corporateType" v-model="corporateType"
                         value="Association" @click="handleInput()" />
                     <label for="corporate-option6" class="section">สมาคม</label>
-                    <p id="error-corporate" v-if="corporateTypeError" style="color: red">กรุณาเลือกคำนำหน้า</p>
+                    <p id="error-corporate" v-if="corporateTypeError" style="color: red">
+                        กรุณาเลือกคำนำหน้า
+                    </p>
                 </div>
                 <div class="formbox">
                     <label class="section">ชื่อบริษัท :</label>
@@ -200,41 +219,61 @@
                             @input="handleInput()"></textarea>
                     </div>
                 </div>
-                <div class="formbox">
-                    <label class="section">หนังสือรับรองบริษัท :</label>
-                    <div class="upload-container">
-                        <div class="images-container" id="container-company-certificate">
-                            <div v-for="(image, index) in companyCertificateImages" :key="index" class="image-wrapper">
-                                <img :src="image" alt="Company Certificate" class="uploaded-image" />
-                                <span class="delete-icon"
-                                    @click="removeImage(index, 'companyCertificateImages')">x</span>
+                <div class="formbox-container">
+                    <div class="formbox-img">
+                        <label class="section-img">หนังสือรับรองบริษัท :</label>
+                        <div class="upload-container" @drop="
+                            handleDrop(
+                                $event,
+                                'companyCertificateImages',
+                                'isDraggingCompanyCertificate'
+                            )
+                            " @dragover="handleDragOver($event, 'isDraggingCompanyCertificate')"
+                            @dragleave="handleDragLeave('isDraggingCompanyCertificate')"
+                            :class="{ dragging: isDraggingCompanyCertificate }">
+                            <div class="images-container" id="container-company-certificate">
+                                <div v-for="(image, index) in companyCertificateImages" :key="index"
+                                    class="image-wrapper">
+                                    <img :src="image" alt="Company Certificate" class="uploaded-image" />
+                                    <font-awesome-icon :icon="['fas', 'circle-xmark']" class="delete-icon"
+                                        @click="removeImage(index, 'companyCertificateImages')" />
+                                </div>
                             </div>
+                            <font-awesome-icon v-if="companyCertificateImages.length === 0" :icon="['fas', 'image']"
+                                @click="triggerFileInput('company-certificate')" class="upload-icon" />
+                            <input type="file" name="image" ref="companyCertificateInput" class="image-upload"
+                                accept="image/*" @change="previewImage($event, 'companyCertificateImages')" />
+                            <p id="photo-certificate-error" v-if="photoCertificateError" style="color: red">
+                                กรุณาอัพโหลดรูปภาพ
+                            </p>
                         </div>
-                        <font-awesome-icon v-if="companyCertificateImages.length === 0" :icon="['fas', 'image']"
-                            @click="triggerFileInput('company-certificate')" class="upload-icon" />
-                        <input type="file" name="image" ref="companyCertificateInput" class="image-upload"
-                            accept="image/*" @change="previewImage($event, 'companyCertificateImages')" />
-                        <p id="photo-certificate-error" v-if="photoCertificateError" style="color: red">
-                            กรุณาอัพโหลดรูปภาพ
-                        </p>
                     </div>
-                </div>
-                <div class="formbox">
-                    <label class="section">สำเนาบัตรประชาชนกรรมการผู้ลงนาม :</label>
-                    <div class="upload-container">
-                        <div class="images-container" id="container-director-id-card">
-                            <div v-for="(image, index) in directorIdCardImages" :key="index" class="image-wrapper">
-                                <img :src="image" alt="Director's ID Card" class="uploaded-image" />
-                                <span class="delete-icon" @click="removeImage(index, 'directorIdCardImages')">x</span>
+                    <div class="formbox-img">
+                        <label class="section-img">สำเนาบัตรประชาชนกรรมการผู้ลงนาม :</label>
+                        <div class="upload-container" @drop="
+                            handleDrop(
+                                $event,
+                                'directorIdCardImages',
+                                'isDraggingDirectorIdCard'
+                            )
+                            " @dragover="handleDragOver($event, 'isDraggingDirectorIdCard')"
+                            @dragleave="handleDragLeave('isDraggingDirectorIdCard')"
+                            :class="{ dragging: isDraggingDirectorIdCard }">
+                            <div class="images-container" id="container-director-id-card">
+                                <div v-for="(image, index) in directorIdCardImages" :key="index" class="image-wrapper">
+                                    <img :src="image" alt="Director's ID Card" class="uploaded-image" />
+                                    <font-awesome-icon :icon="['fas', 'circle-xmark']" class="delete-icon"
+                                        @click="removeImage(index, 'directorIdCardImages')" />
+                                </div>
                             </div>
+                            <font-awesome-icon v-if="directorIdCardImages.length === 0" :icon="['fas', 'image']"
+                                @click="triggerFileInput('director-id-card')" class="upload-icon" />
+                            <input type="file" name="image" ref="directorIdCardInput" class="image-upload"
+                                accept="image/*" @change="previewImage($event, 'directorIdCardImages')" />
+                            <p id="photo-director-IdCard-error" v-if="photoDirectorIdCardError" style="color: red">
+                                กรุณาอัพโหลดรูปภาพ
+                            </p>
                         </div>
-                        <font-awesome-icon v-if="directorIdCardImages.length === 0" :icon="['fas', 'image']"
-                            @click="triggerFileInput('director-id-card')" class="upload-icon" />
-                        <input type="file" name="image" ref="directorIdCardInput" class="image-upload" accept="image/*"
-                            @change="previewImage($event, 'directorIdCardImages')" />
-                        <p id="photo-director-IdCard-error" v-if="photoDirectorIdCardError" style="color: red">
-                            กรุณาอัพโหลดรูปภาพ
-                        </p>
                     </div>
                 </div>
                 <p id="form2-error" ref="formError" class="error-message" v-if="form2Error">
@@ -254,52 +293,40 @@
 </template>
 
 <script>
-import axios from "axios";
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faImage } from '@fortawesome/free-solid-svg-icons'
+// import axios from "axios";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faImage } from "@fortawesome/free-solid-svg-icons";
 // import Compress from 'compress.js';
 // const compress = new Compress();
 
 // import sellerData from '/seller.json';
-library.add(faImage)
-
+library.add(faImage);
 
 export default {
     data() {
         return {
-            title: '',
-            subDistrict: '',
-            shopName: '',
-            postalCode: '',
-            email: '',
-            phoneNumber: '',
-            sellerType: '',
-            prefix: '',
-            otherPrefix: '',
-            firstname: '',
-            lastname: '',
-            idCardNumber: '',
-            birthday: '',
-            province: '',
-            companyOffice: '',
-            amphoe: '',
-            sellerEmail: '',
-            vatRegistrationDocument: '',
+            sellerType: "",
+            prefix: "",
+            otherPrefix: "",
+            firstName: "",
+            lastName: "",
+            idCardNumber: "",
+            birthDay: "",
+            province: "",
+            amphoe: "",
+            district: "",
+            zipcode: "",
+            addressDetails: "",
+            corporateType: "",
+            corporateName: "",
+            corporateRegistrationNumber: "",
+            provinceCorporate: "",
+            amphoeCorporate: "",
+            districtCorporate: "",
+            zipcodeCorporate: "",
+            detailsCorporate: "",
             vatRegistration: false,
-            district: '',
-            idCardWithOwnerImage: '',
-            zipcode: '',
-            idCardFrontImage: '',
-            addressDetail: '',
-            provinceCorporate: '',
-            amphoeCorporate: '',
-            districtCorporate: '',
-            zipcodeCorporate: '',
-            detailsCorporate: '',
-            corporateType: '',
-            corporateName: '',
-            corporateRegistrationNumber: '',
             photoIDcard: null,
             photoRairIDCard: null,
             sellerTypeError: false,
@@ -319,7 +346,15 @@ export default {
             pairIdCardImages: [],
             companyCertificateImages: [],
             directorIdCardImages: [],
-            shopData: {},
+            shopData: {
+                shopName: "",
+                email: "",
+                phoneNumber: "",
+            },
+            isDraggingIdCard: false,
+            isDraggingPairIdCard: false,
+            isDraggingCompanyCertificate: false,
+            isDraggingDirectorIdCard: false,
         };
     },
     components: {
@@ -327,13 +362,24 @@ export default {
     },
     async mounted() {
         try {
-            const response = await fetch('http://localhost:8081/selling/view-data'); // เปลี่ยน URL ให้ตรงกับ API ของคุณ
+            const response = await fetch("http://localhost:8081/selling/view-data"); // เปลี่ยน URL ให้ตรงกับ API ของคุณ
             const seller = await response.json();
             this.shopName = seller.shopName;
             this.email = seller.email;
             this.phoneNumber = seller.phoneNumber;
         } catch (error) {
-            console.error('Error fetching seller data:', error);
+            console.error("Error fetching seller data:", error);
+        }
+    },
+    created() {
+        const savedShopData = localStorage.getItem("shopData");
+        if (savedShopData) {
+            this.shopData = JSON.parse(savedShopData);
+        } else {
+            console.warn(
+                "No shop data found in localStorage, initializing with default data."
+            );
+            this.shopData = { name: "Default Shop", items: [] }; // Example default data
         }
     },
     methods: {
@@ -368,7 +414,7 @@ export default {
             this.form2Error = false;
             this.sellerTypeError = false;
             this.corporateTypeError = false;
-            // return true
+
             // ตรวจสอบประเภทผู้ขาย
             if (!this.sellerType) {
                 isValid = false;
@@ -394,28 +440,28 @@ export default {
                 }
 
                 const individualFields = [
-                    "firstname",
-                    "lastname",
+                    "firstName",
+                    "lastName",
                     "idCardNumber",
-                    "birthday",
+                    "birthDay",
                     "province",
                     "amphoe",
                     "district",
                     "zipcode",
-                    "addressDetails"
+                    "addressDetails",
                 ];
+
                 individualFields.forEach((field) => {
                     if (!this[field]) {
                         isValid = false;
-                        this[field + 'Error'] = true;
+                        this[field + "Error"] = true;
                         if (this.$refs[field]) {
-                            this.$refs[field].style.border = '1px solid red';
+                            this.$refs[field].style.border = "1px solid red";
                         }
                     } else {
-                        this[field + 'Error'] = false;
+                        this[field + "Error"] = false;
                         if (this.$refs[field]) {
-                            this.$refs[field].style.border = '';
-                            //console.log('bb');
+                            this.$refs[field].style.border = "";
                         }
                     }
                 });
@@ -441,12 +487,13 @@ export default {
                     this.idCardNumberError = false;
                 }
 
-                if (!this.birthday || new Date().getFullYear() - new Date(this.birthday).getFullYear() < 20) {
+                if (!this.birthDay || new Date().getFullYear() - new Date(this.birthDay).getFullYear() < 20) {
                     isValid = false;
                     this.ageError = true;
-                    this.$refs.birthday.style.border = "1px solid red";
+                    this.$refs.birthDay.style.border = "1px solid red"; // ทำให้ขอบวันเกิดเป็นสีแดงเมื่ออายุไม่ถึง 20 ปี
                 } else {
                     this.ageError = false;
+                    this.$refs.birthDay.style.border = ""; // คืนค่าขอบฟิลด์ให้ปกติเมื่ออายุถึง 20 ปี
                 }
             }
 
@@ -466,19 +513,20 @@ export default {
                     "amphoeCorporate",
                     "districtCorporate",
                     "zipcodeCorporate",
-                    "detailsCorporate"
+                    "detailsCorporate",
                 ];
+
                 corporateFields.forEach((field) => {
                     if (!this[field]) {
                         isValid = false;
-                        this[field + 'Error'] = true;
+                        this[field + "Error"] = true;
                         if (this.$refs[field]) {
-                            this.$refs[field].style.border = '1px solid red';
+                            this.$refs[field].style.border = "1px solid red";
                         }
                     } else {
-                        this[field + 'Error'] = false;
+                        this[field + "Error"] = false;
                         if (this.$refs[field]) {
-                            this.$refs[field].style.border = '';
+                            this.$refs[field].style.border = "";
                         }
                     }
                 });
@@ -533,60 +581,46 @@ export default {
         redirectToFormOneSeller() {
             this.$router.push("/selling/FormOneSeller");
         },
-        async redirectToFormThreeSeller() {
-            try {
-                // ข้อมูลที่ต้องการส่งไปใน request
-                const sellerData = {
-                    sellerType: this.sellerType,
-                    title: this.title,
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    idCardNumber: this.idCardNumber,
-                    birthDate: this.birthDate,
-                    province: this.province,
-                    district: this.district,
-                    subDistrict: this.subDistrict,
-                    postalCode: this.postalCode,
-                    addressDetail: this.addressDetail,
-                    idCardFrontImage: this.idCardFrontImage,
-                    idCardWithOwnerImage: this.idCardWithOwnerImage,
-                    vatRegistration: this.vatRegistration,
-                    companyOffice: this.companyOffice,
-                    vatRegistrationDocument: this.vatRegistrationDocument,
-                    sellerEmail: this.sellerEmail
-                };
-
-                // เรียกใช้ API POST
-                const response = await axios.post('http://localhost:8081/selling/createSeller', sellerData);
-
-                if (response.status === 201) {
-                    console.log('Seller created successfully:', response.data);
-                    // ถ้า success, redirect ไปยังหน้าอื่น
-                    this.$router.push('/selling/FormThreeSeller');
-                }
-            } catch (error) {
-                console.error('Error creating seller:', error);
+        redirectToFormThreeSeller() {
+            if (this.validateForm2()) {
+                this.saveData();
+                this.$router.push("/selling/FormThreeSeller");
+            } else {
+                this.form2Error = true;
             }
         },
         handleInput() {
             const refs = [
-                'idCardNumber', 'otherPrefix', 'firstname', 'lastname', 'province', 'amphoe',
-                'district', 'addressDetails', 'zipcode', 'corporateName', 'corporateRegistrationNumber',
-                'provinceCorporate', 'amphoeCorporate', 'districtCorporate', 'zipcodeCorporate',
-                'detailsCorporate'
+                "idCardNumber",
+                "otherPrefix",
+                "firstName",
+                "lastName",
+                "province",
+                "amphoe",
+                "district",
+                "addressDetails",
+                "zipcode",
+                "corporateName",
+                "corporateRegistrationNumber",
+                "provinceCorporate",
+                "amphoeCorporate",
+                "districtCorporate",
+                "zipcodeCorporate",
+                "detailsCorporate",
             ];
 
-            refs.forEach(ref => {
+            refs.forEach((ref) => {
                 if (this.$refs[ref] != null) {
-                    this.$refs[ref].style.border = '';
+                    this.$refs[ref].style.border = "";
                 }
             });
             if (this.ageError != null) {
                 this.ageError = false;
-                if (this.$refs.birthday != null) {
-                    this.$refs.birthday.style.border = '';
+                if (this.$refs.birthDay != null) {
+                    this.$refs.birthDay.style.border = "";
                 }
             }
+
             this.photoIdCardError = false;
             this.photoPairIdCardError = false;
             this.photoCertificateError = false;
@@ -597,10 +631,10 @@ export default {
         // photo
         triggerFileInput(inputName) {
             const refMap = {
-                'photo-IDcard': 'photoIDcardInput',
-                'photo-pair-IDCard': 'photoPairIDcardInput',
-                'company-certificate': 'companyCertificateInput',
-                'director-id-card': 'directorIdCardInput'
+                "photo-IDcard": "photoIDcardInput",
+                "photo-pair-IDCard": "photoPairIDcardInput",
+                "company-certificate": "companyCertificateInput",
+                "director-id-card": "directorIdCardInput",
             };
             const refName = refMap[inputName];
             const input = this.$refs[refName];
@@ -608,129 +642,125 @@ export default {
                 input.click();
                 this.handleInput();
             } else {
-                console.error('File input not found');
+                console.error("File input not found");
             }
         },
-        // previewImage(event, imageList) {
-        //     const file = event.target.files[0];
-        //     if (file) {
-        //         const reader = new FileReader();
-        //         reader.onload = (e) => {
-        //             this[imageList].push(e.target.result);
-        //         };
-        //         reader.readAsDataURL(file);
-        //     }
-        // },
         previewImage(event, imageArray) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const max_width = 800; // กำหนดความกว้างสูงสุด
-                        const max_height = 600; // กำหนดความสูงสูงสุด
-                        let width = img.width;
-                        let height = img.height;
-
-                        // คำนวณขนาดใหม่ที่ลดลงตามอัตราส่วน
-                        if (width > height) {
-                            if (width > max_width) {
-                                height *= max_width / width;
-                                width = max_width;
-                            }
-                        } else {
-                            if (height > max_height) {
-                                width *= max_height / height;
-                                height = max_height;
-                            }
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        // แปลง Canvas กลับไปเป็น Data URL
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.75); // quality=0.75
-                        // console.log('Resized Image Data URL:', dataUrl);
-                        this.idCardImages.push(dataUrl);
-                        // เพิ่มรูปภาพลงในอาร์เรย์ที่ระบุ
-
-                        this[imageArray].push(dataUrl);
-
-                    };
-                };
-                reader.readAsDataURL(file);
+                this.readFile(file, imageArray);
             }
         },
+        readFile(file, imageArray) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const max_width = 800;
+                    const max_height = 600;
+                    let width = img.width;
+                    let height = img.height;
 
+                    // Resize logic
+                    if (width > height) {
+                        if (width > max_width) {
+                            height *= max_width / width;
+                            width = max_width;
+                        }
+                    } else {
+                        if (height > max_height) {
+                            width *= max_height / height;
+                            height = max_height;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+
+                    // Clear existing images and add the new one
+                    this[imageArray].splice(0, this[imageArray].length);
+                    this[imageArray].push(dataUrl);
+                };
+            };
+            reader.readAsDataURL(file);
+        },
+        handleDragOver(event, container) {
+            event.preventDefault();
+            this[container] = true;
+        },
+        handleDragLeave(container) {
+            this[container] = false;
+        },
+        handleDrop(event, imageArray, container) {
+            event.preventDefault();
+            this[container] = false;
+            const file = event.dataTransfer.files[0];
+            const allowedTypes = ["image/jpeg", "image/png", "image/jfif"];
+
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert(
+                        "กรุณาอัพโหลดไฟล์รูปภาพที่มีนามสกุล .jpeg, .png หรือ .jfif เท่านั้น"
+                    );
+                    return;
+                }
+                this.readFile(file, imageArray);
+            }
+        },
         removeImage(index, imageList) {
             this[imageList].splice(index, 1);
         },
         saveData() {
-            if (this.sellerType === "individual") {
-                const data1 = {
-                    shopName: this.shopName,
-                    email: this.email,
-                    phoneNumber: this.phoneNumber,
-                    sellerType: this.sellerType,
-                    prefix: this.prefix,
-                    otherPrefix: this.otherPrefix,
-                    firstname: this.firstname,
-                    lastname: this.lastname,
-                    idCardNumber: this.idCardNumber,
-                    birthday: this.birthday,
-                    province: this.province,
-                    amphoe: this.amphoe,
-                    district: this.district,
-                    zipcode: this.zipcode,
-                    addressDetails: this.addressDetails,
-                    idCardImages: this.idCardImages,
-                    pairIdCardImages: this.pairIdCardImages
-                };
-                axios.post('http://localhost:8081/selling/save-data', data1)
-                    .then(response => {
-                        console.log(response.data);
-                    })
-                    .catch(error => {
-                        console.error('Error saving data:', error);
-                    });
-            }
-            if (this.sellerType === "corporate") {
-                const data2 = {
-                    shopName: this.shopName,
-                    email: this.email,
-                    phoneNumber: this.phoneNumber,
-                    sellerType: this.sellerType,
-                    pairIdCardImages: this.pairIdCardImages,
-                    corporateType: this.corporateType,
-                    corporateName: this.corporateName,
-                    corporateRegistrationNumber: this.corporateRegistrationNumber,
-                    provinceCorporate: this.provinceCorporate,
-                    amphoeCorporate: this.amphoeCorporate,
-                    districtCorporate: this.districtCorporate,
-                    zipcodeCorporate: this.zipcodeCorporate,
-                    detailsCorporate: this.detailsCorporate,
-                    companyCertificateImages: this.companyCertificateImages,
-                    directorIdCardImages: this.directorIdCardImages
-                };
-                axios.post('http://localhost:8081/selling/save-data', data2)
-                    .then(response => {
-                        console.log(response.data);
-                    })
-                    .catch(error => {
-                        console.error('Error saving data:', error);
-                    });
-            }
+            const data = {
+                shopName: this.shopData.shopName,
+                email: this.shopData.email,
+                phoneNumber: this.shopData.phoneNumber,
+                sellerType: this.sellerType,
+                prefix: this.prefix,
+                otherPrefix: this.otherPrefix,
+                firstName: this.firstName,
+                lastName: this.lastName,
+                idCardNumber: this.idCardNumber,
+                birthDay: this.birthDay,
+                province: this.province,
+                amphoe: this.amphoe,
+                district: this.district,
+                zipcode: this.zipcode,
+                addressDetails: this.addressDetails,
+                idCardImages: this.idCardImages,
+                pairIdCardImages: this.pairIdCardImages,
+                corporateType: this.corporateType,
+                corporateName: this.corporateName,
+                corporateRegistrationNumber: this.corporateRegistrationNumber,
+                provinceCorporate: this.provinceCorporate,
+                amphoeCorporate: this.amphoeCorporate,
+                districtCorporate: this.districtCorporate,
+                zipcodeCorporate: this.zipcodeCorporate,
+                detailsCorporate: this.detailsCorporate,
+                companyCertificateImages: this.companyCertificateImages,
+                directorIdCardImages: this.directorIdCardImages,
+            };
+            console.log("data : ", data);
+
+            localStorage.setItem("data", JSON.stringify(data));
+
+            // Optionally, if you want to push the data directly, you can use router state (not ideal for large data)
+            this.$router.push({
+                path: "/selling/FormThreeSeller",
+                state: { data },
+            });
         },
-    }
+    },
 };
 </script>
 
 <style scoped>
-*{
+* {
     font-family: "Noto Sans Thai", sans-serif;
     font-weight: 500;
     font-style: normal;
@@ -802,6 +832,10 @@ input[type="checkbox"] {
     margin: 0.5% auto;
 }
 
+.section-img {
+    padding: 20px;
+}
+
 .btn {
     padding: 7px;
     width: 100px;
@@ -870,17 +904,6 @@ input[type="checkbox"] {
     border: 1px solid red;
 }
 
-/*---up photo-----*/
-
-.upload-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin-top: 20px;
-    position: relative;
-}
-
 .image-wrapper {
     position: relative;
     display: inline-block;
@@ -890,21 +913,7 @@ input[type="checkbox"] {
     overflow: hidden;
     border-radius: 8px;
     width: 200px;
-    /* Adjust the size as needed */
     height: 200px;
-    /* Adjust the size as needed */
-}
-
-.upload-icon {
-    font-size: 70px;
-    /* Increased font size for the icon */
-    color: #888;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-
-.upload-icon:hover {
-    color: #555;
 }
 
 .image-upload {
@@ -915,12 +924,11 @@ input[type="checkbox"] {
     position: absolute;
     top: 0;
     right: 0;
-    background: red;
-    color: white;
+    color: red;
     cursor: pointer;
     padding: 2px 5px;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 25px;
 }
 
 .images-container {
@@ -928,20 +936,102 @@ input[type="checkbox"] {
     flex-wrap: wrap;
 }
 
-.uploaded-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 .upload-icon {
     font-size: 50px;
     color: #888;
     cursor: pointer;
     margin-bottom: 20px;
+    /* เพิ่มช่องว่างด้านล่าง */
+    display: flex;
+    /* ใช้ Flexbox */
+    align-items: center;
+    /* จัดแนวกลางในแนวนอน */
+    justify-content: center;
+    /* จัดแนวกลางในแนวตั้ง */
+    margin-top: 15px;
 }
 
 .upload-icon:hover {
     color: #555;
+}
+
+.formbox-container {
+    display: flex;
+    flex-direction: column;
+    /* จัดเรียงแบบแนวตั้ง */
+    align-items: center;
+    /* จัดให้อยู่ตรงกลาง */
+}
+
+.formbox-img {
+    max-width: 350px;
+    /* ตั้งความกว้างสูงสุดที่ 300px */
+    width: auto;
+    /* ปรับให้กว้างตามเนื้อหา */
+    height: auto;
+    /* ปรับให้สูงตามเนื้อหา */
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    display: inline-block;
+    /* ให้บล็อกแสดงตามขนาดของเนื้อหา */
+}
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    /* ปรับให้เป็น auto */
+    max-width: 350px;
+    /* ขนาดสูงสุด */
+    background-color: #fff;
+    /* padding: 20px; */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px dashed #bebebe;
+    transition: border 0.3s ease;
+}
+
+.images-container {
+    display: flex;
+    /* ทำให้ image-wrapper อยู่ในแถว */
+    align-items: center;
+    /* จัดแนวกลางในแนวตั้ง */
+    justify-content: center;
+    /* จัดแนวกลางในแนวนอน */
+    flex-wrap: wrap;
+    /* ให้ wrap หากมีรูปหลายรูป */
+}
+
+.image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    /* จำกัดขนาดของภาพ */
+    max-height: 200px;
+    /* จำกัดความสูงของภาพ */
+}
+
+.uploaded-image {
+    max-width: 100%;
+    /* ขยายภาพให้เต็มพื้นที่ */
+    max-height: 100%;
+    /* จำกัดความสูง */
+    object-fit: contain;
+    /* ให้ภาพแสดงในกรอบโดยไม่ตัด */
+}
+
+.upload-container:hover {
+    border-color: #939393;
+}
+
+.upload-container.dragging {
+    background-color: #e8d6f6;
+    border: 2px dashed #9B7EBD;
 }
 </style>

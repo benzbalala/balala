@@ -1,5 +1,6 @@
 require('dotenv').config();
 const crypto = require('crypto');
+const moment = require('moment-timezone');
 
 const { Sequelize, DataTypes } = require('sequelize');
 
@@ -109,7 +110,7 @@ const ProductTest = sequelize.define('ProductTest', {
     },
     numberProducts: {
         type: DataTypes.INTEGER, allowNull: true
-    },commuProducts: {
+    }, commuProducts: {
         type: DataTypes.STRING, allowNull: true
     },
     imageList: {
@@ -129,8 +130,106 @@ const ProductTest = sequelize.define('ProductTest', {
         type: DataTypes.FLOAT, allowNull: true
     },
     likes: { type: DataTypes.INTEGER, default: 0 }
-},
-);
+},);
+const ProductTestOrder = sequelize.define('ProductTestOrder', {
+    Orderid: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+        defaultValue: () => crypto.randomUUID()
+    },
+    productId: { type: DataTypes.STRING, allowNull: true },//
+    image: { type: DataTypes.TEXT, allowNull: true },//
+    nameProduct: { type: DataTypes.STRING, allowNull: false },//
+    email: { type: DataTypes.STRING, allowNull: false },//
+    shopId: { type: DataTypes.STRING, allowNull: false },//
+    price: { type: DataTypes.FLOAT, allowNull: true },//
+    quantity: { type: DataTypes.INTEGER, allowNull: true },//
+    productTypes: { type: DataTypes.STRING, allowNull: true },//
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+}, 
+{
+    timestamps: true, 
+    hooks: {
+        beforeUpdate: (record) => {
+            record.updatedAt = moment.tz('Asia/Bangkok').toDate();
+        }
+    }
+});
+const recipes  = sequelize.define('recipes', {
+    recipesid: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+        defaultValue: () => crypto.randomUUID()
+    },
+    Orderid: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+    },
+    email: { type: DataTypes.STRING, allowNull: false },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+}, 
+{
+    timestamps: true, 
+    hooks: {
+        beforeUpdate: (record) => {
+            record.updatedAt = moment.tz('Asia/Bangkok').toDate();
+        }
+    }
+});
+const OrderHistory = sequelize.define('OrderHistory', {
+    Orderid: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+    },
+    productId: { type: DataTypes.STRING, allowNull: true },//
+    image: { type: DataTypes.TEXT, allowNull: true },//
+    nameProduct: { type: DataTypes.STRING, allowNull: false },//
+    email: { type: DataTypes.STRING, allowNull: false },//
+    shopId: { type: DataTypes.STRING, allowNull: false },//
+    price: { type: DataTypes.FLOAT, allowNull: true },//
+    quantity: { type: DataTypes.INTEGER, allowNull: true },//
+    productTypes: { type: DataTypes.STRING, allowNull: true },//
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+}, 
+
+{
+    timestamps: true, 
+    hooks: {
+        beforeUpdate: (record) => {
+            record.updatedAt = moment.tz('Asia/Bangkok').toDate();
+        }
+    }
+});
 const Follow = sequelize.define('Follow', {
     email: {
         type: Sequelize.STRING,
@@ -163,6 +262,22 @@ const history = sequelize.define('history', {
         primaryKey: true,
         defaultValue: () => crypto.randomUUID()
     },
+    productId: { type: DataTypes.STRING, allowNull: true },//
+    image: { type: DataTypes.TEXT, allowNull: true },//
+    nameProduct: { type: DataTypes.STRING, allowNull: false },//
+    email: { type: DataTypes.STRING, allowNull: false },//
+    shopId: { type: DataTypes.STRING, allowNull: false },//
+    price: { type: DataTypes.FLOAT, allowNull: true },//
+    quantity: { type: DataTypes.INTEGER, allowNull: true },//
+    productTypes: { type: DataTypes.STRING, allowNull: true },//
+});
+const historySeller = sequelize.define('historySeller', {
+    Historyid: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+        defaultValue: () => crypto.randomUUID()
+    },
     productId: { type: DataTypes.STRING, allowNull: true },
     image: { type: DataTypes.TEXT, allowNull: true },
     nameProduct: { type: DataTypes.STRING, allowNull: false },
@@ -171,10 +286,33 @@ const history = sequelize.define('history', {
     price: { type: DataTypes.FLOAT, allowNull: true },
     quantity: { type: DataTypes.INTEGER, allowNull: true },
     productTypes: { type: DataTypes.STRING, allowNull: true },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+},
+{
+    timestamps: true, 
+    hooks: {
+        beforeUpdate: (record) => {
+            record.updatedAt = moment.tz('Asia/Bangkok').toDate();
+        }
+    }
 });
-
 const cart = sequelize.define('cart', {
-    id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+    // id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+    id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+        defaultValue: () => crypto.randomUUID()
+    },
     productId: { type: DataTypes.STRING, allowNull: true },
     image: { type: DataTypes.TEXT, allowNull: true },
     nameProduct: { type: DataTypes.STRING, allowNull: false },
@@ -198,7 +336,7 @@ const Payment = sequelize.define('Payment', {
     invoiceNo: { type: DataTypes.STRING, allowNull: false }, // หมายเลขใบแจ้งหนี้
     amount: { type: DataTypes.FLOAT, allowNull: false }, // จำนวนเงิน
     monthlyPayment: { type: DataTypes.FLOAT, allowNull: true }, // การชำระเงินรายเดือน
-    userDefined1: { type: DataTypes.STRING, allowNull: true }, // ข้อมูลที่กำหนดโดยผู้ใช้ 1
+    userDefined1: { type: DataTypes.STRING, allowNull: true },
     userDefined2: { type: DataTypes.STRING, allowNull: true }, // ข้อมูลที่กำหนดโดยผู้ใช้ 2
     userDefined3: { type: DataTypes.STRING, allowNull: true }, // ข้อมูลที่กำหนดโดยผู้ใช้ 3
     userDefined4: { type: DataTypes.STRING, allowNull: true }, // ข้อมูลที่กำหนดโดยผู้ใช้ 4
@@ -220,14 +358,47 @@ const Payment = sequelize.define('Payment', {
     paymentScheme: { type: DataTypes.STRING, allowNull: true }, // รูปแบบการชำระเงิน
     displayProcessingAmount: { type: DataTypes.BOOLEAN, allowNull: true }, // การแสดงจำนวนเงินที่ถูกประมวลผล
     respCode: { type: DataTypes.STRING, allowNull: false }, // รหัสตอบกลับ
-    respDesc: { type: DataTypes.STRING, allowNull: true } // คำอธิบายรหัสตอบกลับ
-}, {});
+    respDesc: { type: DataTypes.STRING, allowNull: true } ,
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+    },
+}, {
+    timestamps: true, 
+    hooks: {
+        beforeUpdate: (record) => {
+            record.updatedAt = moment.tz('Asia/Bangkok').toDate();
+        }
+    }
+});
 const seller = sequelize.define('seller', {
+    shopName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     sellerType: {
         type: DataTypes.STRING, // ประเภทผู้ขาย เช่น บุคคลธรรมดา หรือ นิติบุคคล
         allowNull: true
     },
-    title: {
+    prefix: {
+        type: DataTypes.STRING, // คำนำหน้า เช่น นาย, นาง, นางสาว
+        allowNull: true
+    },
+    otherPrefix: {
         type: DataTypes.STRING, // คำนำหน้า เช่น นาย, นาง, นางสาว
         allowNull: true
     },
@@ -243,55 +414,92 @@ const seller = sequelize.define('seller', {
         type: DataTypes.STRING, // หมายเลขบัตรประชาชน
         allowNull: true,
     },
-    birthDate: {
+    birthDay: {
         type: DataTypes.DATEONLY, // วันเดือนปีเกิด
         allowNull: true
     },
     province: {
-        type: DataTypes.STRING, // จังหวัด
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    amphoe: {
+        type: DataTypes.STRING,
         allowNull: true
     },
     district: {
-        type: DataTypes.STRING, // อำเภอ
+        type: DataTypes.STRING,
         allowNull: true
     },
-    subDistrict: {
-        type: DataTypes.STRING, // ตำบล
-        allowNull: true
-    },
-    postalCode: {
-        type: DataTypes.STRING, // รหัสไปรษณีย์
+    zipcode: {
+        type: DataTypes.STRING,
         allowNull: true
     },
     addressDetail: {
         type: DataTypes.TEXT, // รายละเอียดที่อยู่
         allowNull: true
     },
-    idCardFrontImage: {
-        type: DataTypes.TEXT, // รูปถ่ายด้านหน้าบัตรประชาชน (เก็บ URL ของรูปภาพ)
+    idCardImages: {
+        type: DataTypes.JSONB, // รูปถ่ายด้านหน้าบัตรประชาชน (เก็บ URL ของรูปภาพ)
         allowNull: true
     },
-    idCardWithOwnerImage: {
-        type: DataTypes.TEXT, // รูปถ่ายคู่กับบัตรประชาชน (เก็บ URL ของรูปภาพ)
+    pairIdCardImages: {
+        type: DataTypes.JSONB, // รูปถ่ายคู่กับบัตรประชาชน (เก็บ URL ของรูปภาพ)
         allowNull: true
     },
-    vatRegistration: {
-        type: DataTypes.BOOLEAN, // การจดทะเบียนภาษีมูลค่าเพิ่ม (true: จดทะเบียน, true: ไม่จดทะเบียน)
+    corporateType: {
+        type: DataTypes.STRING,
         allowNull: true
     },
-    companyOffice: {
+    corporateName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    corporateRegistrationNumber: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    provinceCorporate: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    amphoeCorporate: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    districtCorporate: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    zipcodeCorporate: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    detailsCorporate: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    companyCertificateImages: {
+        type: DataTypes.JSONB,
+        allowNull: true
+    },
+    directorIdCardImages: {
+        type: DataTypes.JSONB,
+        allowNull: true
+    },
+    VAT: {
+        type: DataTypes.STRING, // การจดทะเบียนภาษีมูลค่าเพิ่ม (true: จดทะเบียน, true: ไม่จดทะเบียน)
+        allowNull: true
+    },
+    office: {
         type: DataTypes.STRING, // สำนักงานของบริษัท
         allowNull: true
     },
-    vatRegistrationDocument: {
-        type: DataTypes.TEXT, // รูปถ่ายใบทะเบียนภาษีมูลค่าเพิ่ม (เก็บ URL ของรูปภาพ)
+    VATImages: {
+        type: DataTypes.JSONB, // รูปถ่ายใบทะเบียนภาษีมูลค่าเพิ่ม (เก็บ URL ของรูปภาพ)
         allowNull: true
     },
-    sellerEmail: {
-        type: DataTypes.STRING, // อีเมลผู้ขาย
-        allowNull: true,
-    }
 });
+
 const location = sequelize.define('location', {
     name: { type: DataTypes.STRING, allowNull: true },
     district: { type: DataTypes.STRING, allowNull: true },
@@ -299,6 +507,7 @@ const location = sequelize.define('location', {
     province: { type: DataTypes.STRING, allowNull: true },
     address: { type: DataTypes.STRING, allowNull: true },
     email: { type: DataTypes.STRING, allowNull: false },
+    number: { type: DataTypes.STRING, allowNull: true },
 });
 const account = sequelize.define('account', {
     name: { type: DataTypes.STRING, allowNull: true },
@@ -319,7 +528,6 @@ const comment = sequelize.define('comment', {
     },
     star: { type: DataTypes.STRING, allowNull: true },
     email: { type: DataTypes.STRING, allowNull: true },
-    historyId: { type: DataTypes.STRING, allowNull: true, },
     productId: { type: DataTypes.STRING, allowNull: false, },
     AcImg: {
         type: DataTypes.JSONB,
@@ -327,6 +535,6 @@ const comment = sequelize.define('comment', {
     },
     AcName: { type: DataTypes.STRING, allowNull: true },
 });
-Shop.hasMany(ProductTest, { foreignKey: 'shopId', sourceKey: 'shopId' });
-ProductTest.belongsTo(Shop, { foreignKey: 'shopId', targetKey: 'shopId' });
-module.exports = { sequelize, User, Follow, Product, ProductLikes, Shop, Selling, ProductTest, history, cart, Payment, seller, location, account, comment };
+// Shop.hasMany(ProductTest, { foreignKey: 'shopId', sourceKey: 'shopId' });
+// ProductTest.belongsTo(Shop, { foreignKey: 'shopId', targetKey: 'shopId' });
+module.exports = { sequelize, User, Follow,OrderHistory, recipes,ProductTestOrder, Product, ProductLikes, historySeller, Shop, Selling, ProductTest, history, cart, Payment, seller, location, account, comment };

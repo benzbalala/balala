@@ -34,12 +34,12 @@ const createJWT = (header, payload, secret) => {
     return jwtToken;
 };
 // สร้าง Payment Token โดยการส่งคำร้องไปยัง 2C2P API
-const createPaymentToken = async (amount) => {
+const createPaymentToken = async (amount,userDefined1,invoiceNo) => {
     const header = {
         alg: "HS256",
         typ: "JWT"
     };
-    const invoiceNo = crypto.randomUUID();
+    // const invoiceNo = crypto.randomUUID();
 
     const payloadData = {
         iss: "Online JWT Builder",
@@ -51,14 +51,14 @@ const createPaymentToken = async (amount) => {
         invoiceNo: invoiceNo,
         description: "test",
         amount: amount,
+        userDefined1: userDefined1,
         currencyCode: "THB",
-        frontendReturnUrl: `${process.env.VUE_APP_NGROK_URL}users/PurchaseHistory`,
-        backendReturnUrl: `${process.env.VUE_APP_NGROK_URL}2c2p/callback`
+        frontendReturnUrl: `${process.env.VUE_APP_NGROK_URL}receiptComponent`,
+        backendReturnUrl: `${process.env.VUE_APP_NGROK_URL}2c2p/callback`,
+        
     };
-    // console.log("Payload Data:", payloadData);
-    //https://40bd-1-10-226-79.ngrok-free.app
+    console.log("userDefined1:", userDefined1);
     const token = createJWT(header, payloadData, secretKey);
-    // console.log("Sending payment request with token:", token);
     try {
         const response = await axios.post('https://sandbox-pgw.2c2p.com/payment/4.3/paymentToken', {
             payload: token
@@ -82,7 +82,6 @@ const createPaymentToken = async (amount) => {
     }
 };
 
-//https://cc4f-1-20-214-13.ngrok-free.app/2c2p/callback
 router.post('/callback', async (req, res) => {
     console.log("/callback");
     const payload = req.body.payload;
@@ -104,7 +103,7 @@ router.post('/callback', async (req, res) => {
             invoiceNo: decoded.invoiceNo,
             amount: parseFloat(decoded.amount),
             monthlyPayment: decoded.monthlyPayment || null,
-            userDefined1: decoded.userDefined1 || null,
+            userDefined1: decoded.userDefined1 ,
             userDefined2: decoded.userDefined2 || null,
             userDefined3: decoded.userDefined3 || null,
             userDefined4: decoded.userDefined4 || null,
@@ -146,8 +145,8 @@ router.get('/', (req, res) => {
 });
 router.post('/paymentToken', async (req, res) => {
     try {
-        const { amount, invoiceNo } = req.body;
-        const paymentResponse = await createPaymentToken(amount, invoiceNo);
+        const { amount, invoiceNo,userDefined1  } = req.body;
+        const paymentResponse = await createPaymentToken(amount, invoiceNo,userDefined1 );
         console.log('Received payment response:', paymentResponse);
         res.status(200).json({ payload: paymentResponse });
     } catch (err) {

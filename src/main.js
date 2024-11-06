@@ -35,15 +35,33 @@ import OtpPage from './page/OPT-Component.vue';
 import reviewPage from './components/production/reviewPage.vue';
 import commemt from "./components/production/commemt-component.vue"
 import EditProduct from './components/production/EditProduct.vue';
-import Loading from './page/loading-page.vue';
-import ProductCatrgory from './components/homepage/Product-Catrgory.vue';
+import ProductCatrgory from '@/components/homepage/Product-Catrgory.vue';
+import OrderHistory from './page/order-history.vue';
+import AddressSeller from './page/AddressSeller.vue';
+import receiptComponent from './page/receipt-component.vue';
 library.add(fas, faGoogle);
 const routes = [
     {
-        path: '/ProductCatrgory', name: 'ProductCatrgory', component: ProductCatrgory
+        path: '/receiptComponent',
+        name: 'receiptComponent',
+        component: receiptComponent
     },{
+        path: '/AddressSeller',
+        name: 'AddressSeller',
+        component: AddressSeller
+    },{
+        path: '/OrderHistory',
+        name: 'OrderHistory',
+        component: OrderHistory
+    },{
+        path: '/ProductCatrgory',
+        name: 'ProductCatrgory',
+        component: ProductCatrgory
+    },
+    {
         path: '/', name: 'Homepage', component: Homepage
-    }, {
+    }, 
+    {
         path: '/shop/EditProduct', name: 'EditProduct', component: EditProduct
     },
     {
@@ -80,9 +98,6 @@ const routes = [
     },
     {
         path: '/users/storepage', name: 'storepage', component: storepage
-    },
-    {
-        path: '/users/Loading', name: 'Loading', component: Loading
     },
     {
         path: '/store/:seller',

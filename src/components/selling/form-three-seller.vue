@@ -9,222 +9,185 @@
 
         <div id="form3">
             <div class="formbox">
+                <!-- <p>corporateType: {{ data.corporateType }}</p> -->
                 <label class="section">จดทะเบียนภาษีมูลค่าเพิ่ม :</label>
-                <input type="radio" id="VAT-option1" name="VAT" class="VAT" value="VAT-No" v-model="VAT"
+                <input type="radio" id="VAT-option1" name="VAT" value="VAT-No" v-model="VAT"
                     @click="showVAToffice(false)" />
                 <label for="VAT-option1" class="section">ไม่</label>
-                <input type="radio" id="VAT-option2" name="VAT" class="VAT" value="VAT-Yes" v-model="VAT"
+                <input type="radio" id="VAT-option2" name="VAT" value="VAT-Yes" v-model="VAT"
                     @click="showVAToffice(true)" />
                 <label for="VAT-option2" class="section">ใช่</label>
                 <p id="error-VAT" v-if="VATError" style="color: red">กรุณาเลือกการจดทะเบียนภาษีมูลค่าเพิ่ม</p>
 
                 <div id="VAT-office" ref="VATOffice" v-show="isVATOfficeVisible">
                     <label class="section">สำนักงานของบริษัท :</label>
-                    <input type="radio" id="office" name="office" value="office" v-model="office"
+                    <input type="radio" id="office" name="office" value="head-office" v-model="office"
                         @click="handleInput()" />
                     <label for="office" class="section">สำนักงานใหญ่</label>
                     <p id="error-section" v-if="sectionError" style="color: red">กรุณาคลิก</p>
-                    <p v-show="officeError" style="color: red"></p>
-                    <div class="formbox">
-                        <label class="section">ใบทะเบียนภาษีมูลค่าเพิ่ม(ภ.พ.20) :</label>
-                        <div class="upload-container">
+                    <br>
+                    <div class="formbox-img">
+                        <label class="section-img">ใบทะเบียนภาษีมูลค่าเพิ่ม(ภ.พ.20) :</label>
+                        <div class="upload-container" @drop="handleDrop($event, 'VATImages', 'isDraggingVATImages')"
+                            @dragover="handleDragOver($event, 'isDraggingVATImages')"
+                            @dragleave="handleDragLeave('isDraggingVATImages')"
+                            :class="{ 'dragging': isDraggingVATImages }">
                             <div class="images-container" id="container-VAT">
                                 <div v-for="(image, index) in VATImages" :key="index" class="image-wrapper">
                                     <img :src="image" alt="VAT ID Card" class="uploaded-image" />
-                                    <span class="delete-icon" @click="removeImage(index, 'VATImages')">x</span>
+                                    <font-awesome-icon :icon="['fas', 'circle-xmark']" class="delete-icon"
+                                        @click="removeImage(index, 'VATImages')" />
+                                    <!-- <span class="delete-icon" @click="removeImage(index, 'VATImages')">x</span> -->
                                 </div>
                             </div>
                             <font-awesome-icon v-if="VATImages.length === 0" :icon="['fas', 'image']"
                                 @click="triggerFileInput('VAT-certificate')" class="upload-icon" />
                             <input type="file" name="image" ref="VATInput" class="image-upload" accept="image/*"
                                 @change="previewImage($event, 'VATImages')" />
-                            <p id="photo-VAT-error" v-if="photoVATError" style="color: red">
-                                กรุณาอัพโหลดรูปภาพ
-                            </p>
+                            <p id="photo-VAT-error" v-if="photoVATError" style="color: red">กรุณาอัพโหลดรูปภาพ</p>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="formbox">
                 <input type="checkbox" id="checkbox" v-model="acceptedTerms" @click="handleInput()" />
                 <label for="checkbox"> ฉันยอมรับ เงื่อนไขการใช้บริการ และ นโยบายความเป็นส่วนตัว</label>
-                <p v-show="checkboxError" style="color: red"></p>
-                <p id="error-checkbox" v-if="checkboxError" style="color: red">กรุณากดยอมรับเงื่อนไข</p>
+                <p v-show="checkboxError" style="color: red">กรุณากดยอมรับเงื่อนไข</p>
             </div>
+
             <p v-if="form3Error" class="error-message" style="color: red">กรุณากรอกข้อมูลให้ครบถ้วน</p>
 
             <router-link to="/selling/FormTwoSeller">
-                <button type="button" class="btn-back" @click="redirectToFormTwoSeller">
-                    ย้อนกลับ
-                </button>
+                <button type="button" class="btn-back" @click="redirectToFormTwoSeller">ย้อนกลับ</button>
             </router-link>
-            <button type="button" class="btn" @click="redirectToSellingPage()">
-                ยืนยัน
-            </button>
+            <button type="button" class="btn" @click="redirectToSellingPage()">ยืนยัน</button>
         </div>
     </div>
 </template>
 
 <script>
 import axios from "axios";
-// import sellerData from '/seller.json';
 
 export default {
     data() {
         return {
-            currentForm: 3,
             VAT: '',
             isVATOfficeVisible: false,
             office: '',
             VATImages: [],
-            acceptTerms: false,
+            acceptedTerms: false, // Fixed variable name from 'acceptTerms'
             VATError: false,
             sectionError: false,
-            officeError: false,
             photoVATError: false,
             checkboxError: false,
             form3Error: false,
-
-            shopName: '',
-            email: '',
-            phoneNumber: '',
-            sellerType: '',
-            prefix: '',
-            otherPrefix: '',
-            firstname: '',
-            lastname: '',
-            idCardNumber: '',
-            birthday: '',
-            province: '',
-            amphoe: '',
-            district: '',
-            zipcode: '',
-            addressDetails: '',
-            idCardImages: '',
-            pairIdCardImages: '',
-
-            corporateType: '',
-            corporateName: '',
-            corporateRegistrationNumber: '',
-            provinceCorporate: '',
-            amphoeCorporate: '',
-            districtCorporate: '',
-            zipcodeCorporate: '',
-            detailsCorporate: '',
-            companyCertificateImages: '',
-            directorIdCardImages: '',
+            formData: null,
+            isDraggingVATImages: false,
+            data: {
+                shopName: '',
+                email: '',
+                phoneNumber: '',
+                sellerType: '',
+                prefix: '',
+                otherPrefix: '',
+                firstName: '',
+                lastname: '',
+                idCardNumber: '',
+                birthDay: '',
+                province: '',
+                amphoe: '',
+                district: '',
+                zipcode: '',
+                addressDetails: '',
+                corporateType: '',
+                corporateName: '',
+                corporateRegistrationNumber: '',
+                provinceCorporate: '',
+                amphoeCorporate: '',
+                districtCorporate: '',
+                zipcodeCorporate: '',
+                detailsCorporate: '',
+                idCardImages: [],
+                pairIdCardImages: [],
+                companyCertificateImages: [],
+                directorIdCardImages: [],
+            }
         };
     },
-    async mounted() {
-        try {
-            const response = await fetch('http://localhost:8081/selling/view-data'); // เปลี่ยน URL ให้ตรงกับ API ของคุณ
-            const seller = await response.json();
-            this.shopName = seller.shopName;
-            this.email = seller.email;
-            this.phoneNumber = seller.phoneNumber;
-            this.sellerType = seller.sellerType
-            this.prefix = seller.prefix
-            this.otherPrefix = seller.otherPrefix
-            this.firstname = seller.firstname
-            this.lastname = seller.lastname
-            this.idCardNumber = seller.idCardNumber
-            this.birthday = seller.birthday
-            this.province = seller.province
-            this.amphoe = seller.amphoe
-            this.district = seller.district
-            this.zipcode = seller.zipcode
-            this.addressDetails = seller.addressDetails
-            this.idCardImages = seller.idCardImages
-            this.pairIdCardImages = seller.pairIdCardImages
-            this.corporateType = seller.corporateType
-            this.corporateName = seller.corporateName
-            this.corporateRegistrationNumber = seller.corporateRegistrationNumber
-            this.provinceCorporate = seller.provinceCorporate
-            this.amphoeCorporate = seller.amphoeCorporate
-            this.districtCorporate = seller.districtCorporate
-            this.zipcodeCorporate = seller.zipcodeCorporate
-            this.detailsCorporate = seller.detailsCorporate
-            this.companyCertificateImages = seller.companyCertificateImages
-            this.directorIdCardImages = seller.directorIdCardImages
-        } catch (error) {
-            console.error('Error fetching seller data:', error);
+    // async mounted() {
+    //     try {
+    //         const response = await fetch('http://localhost:8081/selling/view-data');
+    //         const seller = await response.json();
+    //         Object.assign(this, seller); // Spread the fetched seller data into the component
+    //     } catch (error) {
+    //         console.error('Error fetching seller data:', error);
+    //     }
+    // },
+    // created() {
+    //     // Retrieve data from localStorage or state
+    //     const savedData = localStorage.getItem('data');
+    //     if (savedData) {
+    //         this.data = JSON.parse(savedData);
+    //     } else if (this.$router.state && this.$router.state.data) {
+    //         this.data = this.$router.state.data;
+    //     } else {
+    //         console.error('No shop data found');
+    //     }
+    // },
+    created() {
+        const savedData = localStorage.getItem('data');
+        if (savedData) {
+            this.data = JSON.parse(savedData); // Assuming you have a data property in your component
+            console.log("Retrieved data:", this.data);
+        } else {
+            console.warn('No data found in localStorage');
+            // Optionally, initialize default values or handle the absence of data
         }
     },
     methods: {
         validateForm3() {
-            // let isValid = true;
-            // this.VATError = false;
-            // this.checkboxError = false;
-            // this.sectionError = false;
-            // this.photoVATError = false;
-            // this.form3Error = false;
-            // // ตรวจสอบว่ามีค่า VAT ที่ถูกเลือกหรือไม่
-            // if (!this.VAT) {
-            //     this.VATError = true;
-            //     isValid = false;
-            // }
-            // // ตรวจสอบว่า checkbox ได้ถูกติ๊กหรือไม่
-            // if (!this.acceptedTerms) {
-            //     this.checkboxError = true;
-            //     isValid = false;
-            // }
+            let isValid = true;
+            this.resetErrors();
 
-            // if (this.VAT === 'VAT-Yes') {
-            //     // ตรวจสอบว่าเลือกสำนักงานหรือไม่
-            //     if (!this.office) {
-            //         this.sectionError = true;
-            //         isValid = false;
-            //     }
+            if (!this.VAT) {
+                this.VATError = true;
+                isValid = false;
+            }
+            if (!this.acceptedTerms) {
+                this.checkboxError = true;
+                isValid = false;
+            }
+            if (this.VAT === 'VAT-Yes') {
+                if (!this.office) {
+                    this.sectionError = true;
+                    isValid = false;
+                }
+                if (this.VATImages.length === 0) {
+                    this.photoVATError = true;
+                    isValid = false;
+                }
+            }
 
-            //     // เช็คการอัพรูป
-            //     if (this.VATImages.length === 0) {
-            //         this.photoVATError = true;
-            //         isValid = false;
-            //     }
-            // }
-
-            // // แสดงข้อความแจ้งเตือนหากข้อมูลไม่ครบถ้วน
-            // if (!isValid) {
-            //     this.form3Error = true;
-            // }
-
-            return true;
+            if (!isValid) {
+                this.form3Error = true;
+            }
+            return isValid;
+        },
+        resetErrors() {
+            this.VATError = false;
+            this.sectionError = false;
+            this.photoVATError = false;
+            this.checkboxError = false;
+            this.form3Error = false;
         },
         showVAToffice(isVAT) {
-            if (isVAT == true) {
-                this.$refs.VATOffice.style.display = 'block';
-                this.handleInput();
-            } else {
-                this.$refs.VATOffice.style.display = 'none';
-                this.handleInput();
-            }
+            this.isVATOfficeVisible = isVAT;
+            this.handleInput();
         },
         handleInput() {
-            if (this.photoVATError != null) {
-                this.photoVATError = false;
-            }
-
-            if (this.VATError != null) {
-                this.VATError = false;
-            }
-
-            if (this.checkboxError != null) {
-                this.checkboxError = false;
-            }
-
-            if (this.form3Error != null) {
-                this.form3Error = false;
-            }
-
-            if (this.officeError != null) {
-                this.officeError = false;
-            }
-
-            if (this.sectionError != null) {
-                this.sectionError = false;
-            }
+            this.resetErrors();
         },
-        // photo
         triggerFileInput(inputName) {
             const refMap = {
                 'VAT-certificate': 'VATInput',
@@ -238,14 +201,69 @@ export default {
                 console.error('File input not found');
             }
         },
-        previewImage(event, imageList) {
+        previewImage(event, imageArray) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this[imageList].push(e.target.result);
+                this.readFile(file, imageArray);
+            }
+        },
+        readFile(file, imageArray) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const max_width = 800;
+                    const max_height = 600;
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize logic
+                    if (width > height) {
+                        if (width > max_width) {
+                            height *= max_width / width;
+                            width = max_width;
+                        }
+                    } else {
+                        if (height > max_height) {
+                            width *= max_height / height;
+                            height = max_height;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+
+                    // Clear existing images and add the new one
+                    this[imageArray].splice(0, this[imageArray].length);
+                    this[imageArray].push(dataUrl);
                 };
-                reader.readAsDataURL(file);
+            };
+            reader.readAsDataURL(file);
+        },
+        handleDragOver(event, container) {
+            event.preventDefault();
+            this[container] = true;
+        },
+        handleDragLeave(container) {
+            this[container] = false;
+        },
+        handleDrop(event, imageArray, container) {
+            event.preventDefault();
+            this[container] = false;
+            const file = event.dataTransfer.files[0];
+            const allowedTypes = ["image/jpeg", "image/png", "image/jfif"];
+
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert("กรุณาอัพโหลดไฟล์รูปภาพที่มีนามสกุล .jpeg, .png หรือ .jfif เท่านั้น");
+                    return;
+                }
+                this.readFile(file, imageArray);
             }
         },
         removeImage(index, imageList) {
@@ -261,45 +279,49 @@ export default {
             }
         },
         saveData() {
-            const data = {
-                shopName: this.shopName,
-                email: this.email,
-                phoneNumber: this.phoneNumber,
-                sellerType: this.sellerType,
-                prefix: this.prefix,
-                otherPrefix: this.otherPrefix,
-                firstname: this.firstname,
-                lastname: this.lastname,
-                idCardNumber: this.idCardNumber,
-                birthday: this.birthday,
-                province: this.province,
-                amphoe: this.amphoe,
-                district: this.district,
-                zipcode: this.zipcode,
-                addressDetails: this.addressDetails,
-                idCardImages: this.idCardImages,
-                pairIdCardImages: this.pairIdCardImages,
-                corporateType: this.corporateType,
-                corporateName: this.corporateName,
-                corporateRegistrationNumber: this.corporateRegistrationNumber,
-                provinceCorporate: this.provinceCorporate,
-                amphoeCorporate: this.amphoeCorporate,
-                districtCorporate: this.districtCorporate,
-                zipcodeCorporate: this.zipcodeCorporate,
-                detailsCorporate: this.detailsCorporate,
-                companyCertificateImages: this.companyCertificateImages,
-                directorIdCardImages: this.directorIdCardImages,
+            const saveData = {
+                shopName: this.data.shopName,
+                email: this.data.email,
+                phoneNumber: this.data.phoneNumber,
+                sellerType: this.data.sellerType,
+                prefix: this.data.prefix || null,
+                otherPrefix: this.data.otherPrefix || null,
+                firstName: this.data.firstName || null,
+                lastName: this.data.lastName || null,
+                idCardNumber: this.data.idCardNumber || null,
+                birthDay: this.data.birthDay || null,
+                province: this.data.province || null,
+                amphoe: this.data.amphoe || null,
+                district: this.data.district || null,
+                zipcode: this.data.zipcode || null,
+                addressDetail: this.data.addressDetails || null,
+                idCardImages: this.data.idCardImages || null,
+                pairIdCardImages: this.data.pairIdCardImages || null,
+
+                corporateType: this.data.corporateType || null,
+                corporateName: this.data.corporateName || null,
+                corporateRegistrationNumber: this.data.corporateRegistrationNumber || null,
+                provinceCorporate: this.data.provinceCorporate || null,
+                amphoeCorporate: this.data.amphoeCorporate || null,
+                districtCorporate: this.data.districtCorporate || null,
+                zipcodeCorporate: this.data.zipcodeCorporate || null,
+                detailsCorporate: this.data.detailsCorporate || null,
+                companyCertificateImages: this.data.companyCertificateImages || null,
+                directorIdCardImages: this.data.directorIdCardImages || null,
+
                 VAT: this.VAT,
-                office: this.office,
-                VATImages: this.VATImages,
-                acceptedTerms: this.acceptedTerms,
-            }
-            axios.post('http://localhost:8081/selling/save-data', data)
+                office: this.office || null,
+                VATImages: this.VATImages || null,
+                // acceptedTerms: this.acceptedTerms,
+            };
+            console.log('saveData : ', saveData);
+
+            axios.post('http://localhost:8081/selling/createSeller', saveData)
                 .then(response => {
-                    console.log(response.data);
+                    console.log('Data saved successfully:',response.data);
                 })
                 .catch(error => {
-                    console.error('Error saving data:', error);
+                    console.error('Error saving data:', error.response ? error.response.data : error.message);
                 });
         },
         redirectToFormTwoSeller() {
@@ -310,7 +332,7 @@ export default {
 </script>
 
 <style scoped>
-*{
+* {
     font-family: "Noto Sans Thai", sans-serif;
     font-weight: 500;
     font-style: normal;
@@ -490,12 +512,11 @@ input[type="checkbox"] {
     position: absolute;
     top: 0;
     right: 0;
-    background: red;
-    color: white;
+    color: red;
     cursor: pointer;
     padding: 2px 5px;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 25px;
 }
 
 .images-container {
@@ -503,20 +524,99 @@ input[type="checkbox"] {
     flex-wrap: wrap;
 }
 
-.uploaded-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 .upload-icon {
     font-size: 50px;
     color: #888;
     cursor: pointer;
     margin-bottom: 20px;
+    /* เพิ่มช่องว่างด้านล่าง */
+    display: flex;
+    /* ใช้ Flexbox */
+    align-items: center;
+    /* จัดแนวกลางในแนวนอน */
+    justify-content: center;
+    /* จัดแนวกลางในแนวตั้ง */
+    margin-top: 15px;
 }
 
 .upload-icon:hover {
     color: #555;
+}
+
+.section-img {
+    padding: 20px;
+}
+
+.formbox-img {
+    max-width: 350px;
+    /* ตั้งความกว้างสูงสุดที่ 300px */
+    width: auto;
+    /* ปรับให้กว้างตามเนื้อหา */
+    height: auto;
+    /* ปรับให้สูงตามเนื้อหา */
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    display: inline-block;
+    /* ให้บล็อกแสดงตามขนาดของเนื้อหา */
+    margin-top: 20px;
+}
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    /* ปรับให้เป็น auto */
+    max-width: 350px;
+    /* ขนาดสูงสุด */
+    background-color: #fff;
+    /* padding: 20px; */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px dashed #888;
+    transition: border 0.3s ease;
+}
+
+.images-container {
+    display: flex;
+    /* ทำให้ image-wrapper อยู่ในแถว */
+    align-items: center;
+    /* จัดแนวกลางในแนวตั้ง */
+    justify-content: center;
+    /* จัดแนวกลางในแนวนอน */
+    flex-wrap: wrap;
+    /* ให้ wrap หากมีรูปหลายรูป */
+}
+
+.image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    /* จำกัดขนาดของภาพ */
+    max-height: 200px;
+    /* จำกัดความสูงของภาพ */
+}
+
+.uploaded-image {
+    max-width: 100%;
+    /* ขยายภาพให้เต็มพื้นที่ */
+    max-height: 100%;
+    /* จำกัดความสูง */
+    object-fit: contain;
+    /* ให้ภาพแสดงในกรอบโดยไม่ตัด */
+}
+
+.upload-container:hover {
+    border-color: #555;
+}
+
+.upload-container.dragging {
+    background-color: rgba(255, 0, 0, 0.2);
+    border: 2px dashed red;
 }
 </style>
